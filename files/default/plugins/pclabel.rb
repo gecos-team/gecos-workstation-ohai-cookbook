@@ -6,7 +6,7 @@ end
 
 pclabel = ''
 File.open('/etc/pclabel','r') do |pclabelfile|
-  pclabel = pclabelfile.gets.chomp!
+  pclabel = pclabelfile.gets
 end
 
 
