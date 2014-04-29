@@ -1,3 +1,7 @@
-provides 'pclabel'
+provides 'ohai_gecos'
 
-pclabel from("cat /etc/pclabel")
+if ohai_gecos.nil?
+  ohai_gecos Mash.new
+end
+
+ohai_gecos['pclabel'] from("cat /etc/pclabel")
