@@ -114,11 +114,14 @@ end
 
 applications = {}
 applications_path = '/usr/share/applications/'
-Find.find(applications_path) do |path|
-  if FileTest.file? path and File.extname(path) == '.desktop'
-    app=Ini.new(path)
-    applications[File.basename(path)] = app["Desktop Entry"]
+begin
+  Find.find(applications_path) do |path|
+    if FileTest.file? path and File.extname(path) == '.desktop'
+      app=Ini.new(path)
+      applications[File.basename(path)] = app["Desktop Entry"]
+    end
   end
+rescue Exception => e
+  puts e.message
 end
-
 ohai_gecos['applications'] = applications
