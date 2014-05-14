@@ -5,9 +5,9 @@ if ohai_gecos.nil?
 end
 
 require 'etc'
-
-users Array.new
-
+require 'rest_client'
+require 'json'
+users = []
 # LikeWise create the user homes at /home/local/DOMAIN/
 homedirs = Dir["/home/*"] + Dir["/home/local/*/*"]
 homedirs.each do |homedir|
@@ -24,6 +24,16 @@ homedirs.each do |homedir|
   rescue Exception => e
     puts 'User ' + user + ' doesn\'t exists'
   end
+end
+
+if not users == ohai_gecos['users']
+  users_report = users.join(',')
+  gcc_control = {}
+  File.open('/etc/gcc.control', "r") do |f|
+    gcc_control = JSON.load(f)
+  end
+  resource = RestClient::Resource.new(gcc_control['uri_gcc'] + '/register/user/')
+  response = resource.put :node_id => gcc_control['gcc_nodename'],:users=>users_report, :content_type => :json, :accept => :json
 end
 
 ohai_gecos['users'] = users
