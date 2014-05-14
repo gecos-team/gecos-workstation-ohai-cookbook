@@ -32,8 +32,12 @@ if not users == ohai_gecos['users']
   File.open('/etc/gcc.control', "r") do |f|
     gcc_control = JSON.load(f)
   end
-  resource = RestClient::Resource.new(gcc_control['uri_gcc'] + '/register/user/')
-  response = resource.put :node_id => gcc_control['gcc_nodename'],:users=>users_report, :content_type => :json, :accept => :json
+  begin
+    resource = RestClient::Resource.new(gcc_control['uri_gcc'] + '/register/user/')
+    response = resource.put :node_id => gcc_control['gcc_nodename'],:users=>users_report, :content_type => :json, :accept => :json
+  rescue Exception => e
+    puts e.message
+  end
 end
 
 ohai_gecos['users'] = users
