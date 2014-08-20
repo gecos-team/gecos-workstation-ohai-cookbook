@@ -42,7 +42,12 @@ if not users == ohai_gecos['users']
     else
       response_json = JSON.load(response.to_str)
       if not response_json['ok']
-        Ohai::Log.error(response_json['message'])
+        if response_json.has_key?("message")
+          Ohai::Log.error(response_json['message'])
+        end
+        if response_json.has_key?("error")
+          Ohai::Log.error(response_json['error'])
+        end
       end
     end
   rescue Exception => e
