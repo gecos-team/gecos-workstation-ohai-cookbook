@@ -3,8 +3,11 @@ maintainer_email "cookbooks@opscode.com"
 license          "Apache 2.0"
 description      "Distributes a directory of custom ohai plugins"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "1.9.4"
+version          "1.9.5"
 
+# Change version field when you add new plugins (see files/default/plugins)
+# or Chef server will not notice them
+ 
 recipe "ohai::default", "Distributes a directory of custom ohai plugins"
 
 attribute "ohai/plugin_path",
