@@ -4,7 +4,7 @@ if ohai_gecos.nil?
   ohai_gecos Mash.new
 end
 
-repofiles = []
+repositories = []
 
 begin
 
@@ -20,7 +20,7 @@ begin
 
 		Chef::Log.debug("ohai_gecos - sources: #{sources}")
 
-		repofiles <<  Mash.new(
+		repositories <<  Mash.new(
 			:filename => repofile,
 			:sources	=> sources
 		)
@@ -29,4 +29,4 @@ begin
 
 end
 
-ohai_gecos['repofiles'] = repofiles
+ohai_gecos['repositories'] = repositories
