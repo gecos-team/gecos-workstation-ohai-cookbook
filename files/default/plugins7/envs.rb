@@ -11,6 +11,7 @@ Ohai.plugin(:Envs) do
           envvars = ''
           fp = File.open('/etc/environment','r')
           envvars = fp.read
+          envvars.gsub! /^$\n/, ''
           fp.close
 
           envs = Hash[envvars.each_line.map { |l| l.gsub(/(?:")*?([^"]+)(?:")*?/, '\1').chomp.split('=',2)}]

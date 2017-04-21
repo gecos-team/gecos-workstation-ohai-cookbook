@@ -7,6 +7,7 @@ begin
   envvars = ''
   fp = File.open('/etc/environment','r')
   envvars = fp.read
+  envvars.gsub! /^$\n/, ''
   fp.close
 
   #envs = Hash[envvars.each_line.map { |l| l.gsub!(/"/, '').chomp.split('=',2)}]
