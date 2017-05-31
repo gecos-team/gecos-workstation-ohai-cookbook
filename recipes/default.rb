@@ -20,10 +20,17 @@
 if !Ohai::Config[:plugin_path].include?(node['ohai']['plugin_path'])
   Ohai::Config[:plugin_path] << node['ohai']['plugin_path']
 end
-Chef::Log.info("ohai plugins will be at: #{node['ohai']['plugin_path']}")
+Chef::Log.info("ohai plugins will be at: #{node['ohai']['plugin_path']} ohai version is #{Ohai::VERSION}")
+
+version_major = Ohai::VERSION.split[0].to_i
+Chef::Log.info("ohai version major is #{version_major}")
+source_path = 'plugins'
+if version_major > 6
+	source_path = 'plugins7'
+end
 
 rd = remote_directory node['ohai']['plugin_path'] do
-  source 'plugins'
+  source source_path
   owner 'root'
   group 'root'
   mode 0755
