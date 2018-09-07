@@ -43,32 +43,46 @@ begin
   entries = []
   printers = []
 
-  entries = Mixlib::ShellOut.new("lpstat -a | egrep '^\\S' | awk '{print $1}'")
-  entries.run_command
+  if $ohai_new_config_syntax
+    entries = shell_out("lpstat -a | egrep '^\\S' | awk '{print $1}'")
+  else
+    entries = Mixlib::ShellOut.new("lpstat -a | egrep '^\\S' | awk '{print $1}'")
+    entries.run_command
+  end
+  Chef::Log.debug("printers.rb: entries = #{entries}")
 
   if entries.exitstatus == 0
     entries.stdout.split(/\r?\n/).each do |printer|
-      lpo = Mixlib::ShellOut.new("lpoptions -p #{printer}")
-      lpo.run_command
-        if lpo.exitstatus == 0
+      if $ohai_new_config_syntax
+        lpo = shell_out("lpoptions -p #{printer}")
+      else
+        lpo = Mixlib::ShellOut.new("lpoptions -p #{printer}")
+        lpo.run_command
+      end
+      if lpo.exitstatus == 0
+        if $ohai_new_config_syntax
+            lpq = shell_out("lpq -P #{printer}")
+            lps = shell_out("lpstat -p #{printer}")
+        else
             lpq = Mixlib::ShellOut.new("lpq -P #{printer}")
             lps = Mixlib::ShellOut.new("lpstat -p #{printer}")
             lpq.run_command
             lps.run_command
-            printerStatus = lps.stdout
-            printerQueue  = lpq.stdout
-            thisprinter Mash.new
-            thisprinter[:status] = printerStatus
-            thisprinter[:queue]  = printerQueue
-            puts printer.gsub("+","\+")
-            puts printer.gsub("+","\\+")
-            thisprinter[:oppolicy] = getTagValue(printer, 'OpPolicy')
-            p = lpo.stdout.scan(/(?:\S+='.+?')|(?:\S+=\S+)/)
-            p.each { |x| thisprinter[x.split(/=(.*)/)[0]] = x.split(/=(.*)/)[1]}
-            printers << thisprinter
-        else
-            next
         end
+        printerStatus = lps.stdout
+        printerQueue  = lpq.stdout
+        thisprinter Mash.new
+        thisprinter[:status] = printerStatus
+        thisprinter[:queue]  = printerQueue
+        puts printer.gsub("+","\+")
+        puts printer.gsub("+","\\+")
+        thisprinter[:oppolicy] = getTagValue(printer, 'OpPolicy')
+        p = lpo.stdout.scan(/(?:\S+='.+?')|(?:\S+=\S+)/)
+        p.each { |x| thisprinter[x.split(/=(.*)/)[0]] = x.split(/=(.*)/)[1]}
+        printers << thisprinter
+      else
+        next
+      end
     end
   end
   rescue Exception => e
