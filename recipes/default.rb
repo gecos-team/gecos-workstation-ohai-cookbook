@@ -17,8 +17,17 @@
 # limitations under the License.
 #
 
-if !Ohai::Config[:plugin_path].include?(node['ohai']['plugin_path'])
-  Ohai::Config[:plugin_path] << node['ohai']['plugin_path']
+$ohai_new_config_syntax=Gem::Requirement.new('>= 8.6.0').satisfied_by?(Gem::Version.new(Ohai::VERSION))
+Chef::Log.debug("ohai_new_config_syntax = #{$ohai_new_config_syntax}")
+
+if $ohai_new_config_syntax
+  if !Ohai.config[:plugin_path].include?(node['ohai']['plugin_path'])
+    Ohai.config[:plugin_path] << node['ohai']['plugin_path']
+  end
+else
+  if !Ohai::Config[:plugin_path].include?(node['ohai']['plugin_path'])
+    Ohai::Config[:plugin_path] << node['ohai']['plugin_path']
+  end
 end
 Chef::Log.info("ohai plugins will be at: #{node['ohai']['plugin_path']} ohai version is #{Ohai::VERSION}")
 
@@ -42,8 +51,10 @@ rd.run_action(:create)
 
 # only reload ohai if new plugins were dropped off OR
 # node['ohai']['plugin_path'] does not exists in client.rb
-if rd.updated? || 
-  !(::IO.read(Chef::Config[:config_file]) =~ /Ohai::Config\[:plugin_path\]\s*<<\s*["']#{node['ohai']['plugin_path']}["']/)
+regex = $ohai_new_config_syntax ? /ohai.plugin_path\s*<<\s*["']#{node['ohai']['plugin_path']}["']/ : /Ohai::Config\[:plugin_path\]\s*<<\s*["']#{node['ohai']['plugin_path']}["']/
+Chef::Log.debug("regex = #{regex}")
+
+if rd.updated? || !(::IO.read(Chef::Config[:config_file]) =~ regex)
 
   ohai 'custom_plugins' do
     action :nothing
