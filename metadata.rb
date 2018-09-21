@@ -6,6 +6,8 @@ description      "Distributes a directory of custom ohai plugins"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "1.10.0"
 
+depends "chef-client"
+
 recipe "ohai::default", "Distributes a directory of custom ohai plugins"
 
 attribute "ohai/plugin_path",
