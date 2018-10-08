@@ -17,28 +17,6 @@
 # limitations under the License.
 #
 
-
-Chef::Log.info('Chef client version check')
-
-current_client_version = node['chef_packages']['chef']['version']
-power = 1_000_000
-cclient_version = current_client_version.split('.')
-integer_current_client_version = cclient_version.inject(0) do |sum, val|
-  power /= 100
-  sum + val.to_i * power
-end
-
-# Force chef-client update if version is older than 12.20.
-if integer_current_client_version < 122_000
-  Chef::Log.info('Chef client upgrade required')
-  $update_cmd = `apt-get update`
-  $upgrade_agent =  `apt-get install chef`
-# Relaunch itself right now
-  exec( '/usr/bin/chef-client' )
-end
-
-
-
 $ohai_new_config_syntax=Gem::Requirement.new('>= 8.6.0').satisfied_by?(Gem::Version.new(Ohai::VERSION))
 Chef::Log.debug("ohai_new_config_syntax = #{$ohai_new_config_syntax}")
 
