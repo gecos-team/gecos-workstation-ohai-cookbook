@@ -4,21 +4,7 @@ if ohai_gecos.nil?
   ohai_gecos Mash.new
 end
 
-require 'etc'
-calist = Mash.new
-Dir["/home/*/.mozilla/firefox/*default"].each do |profile_dir|
-  begin
-     calist[profile_dir] = {}    
-    `certutil -L -d '#{profile_dir}' `.each_line("\n"){|lin| 
-      parts = lin.rstrip.split('  ')
-      if parts[0] and parts[-1] and parts[0] !~/^Certificate Nickname/ and !parts[0].empty? 
-        calist[profile_dir]["#{parts[0]}"] = parts[-1].strip
-      end
-      }
-  rescue Exception => e
-    puts 'Error reading ' + profile_dir+ e.inspect
-  end
-end
-
-ohai_gecos['ffox_certs'] = calist
-
+ca_certs = `awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < /etc/ssl/certs/ca-certificates.crt | grep -oP '^subject=\\K.*' | sed 's/, \\([A-Z][A-Z]\\?\\)\\( \\)\\?=/\\/\\1=/g' |  awk -F '/' '{print $NF}' | grep -E '(CN|OU)( )?=' | awk -F '=' '{print $NF}' | sed 's/^ //' | sort`
+ca_certs = ca_certs.gsub!(/\\x([A-F0-9][A-F0-9])/n) { $1.hex.chr }
+ca_certs = ca_certs.force_encoding('utf-8')
+ohai_gecos['ca-certificates'] = ca_certs.split("\n")

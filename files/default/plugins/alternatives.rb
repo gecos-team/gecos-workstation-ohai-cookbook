@@ -11,11 +11,16 @@ begin
         alternative_name = line.scan( /[ ]*([^ ]+)/).first.first
         
         # Get information about one alternative
-        stdin, stdout, stderr, wait_thr = Open3.popen3('update-alternatives', '--display', alternative_name)
-        data = stdout.gets(nil)
-        stdout.close
-        stderr.gets(nil)
-        stderr.close
+        if $ohai_new_config_syntax
+          data = shell_out('update-alternatives', '--display', alternative_name).stdout
+        else
+          stdin, stdout, stderr, wait_thr = Open3.popen3('update-alternatives', '--display', alternative_name)
+          data = stdout.gets(nil)
+          stdout.close
+          stderr.gets(nil)
+          stderr.close
+        end
+        Chef::Log.debug("alternatives.rb: data = #{data}")
         
         # parse the information
         current_opt = 'UNKNOWN'
