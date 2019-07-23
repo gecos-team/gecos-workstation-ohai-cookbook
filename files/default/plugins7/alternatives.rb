@@ -15,7 +15,7 @@ Ohai.plugin(:Alternatives) do
                 
                 # Get information about one alternative
                 if $ohai_new_config_syntax
-                  data = shell_out('update-alternatives', '--display', alternative_name).stdout
+                  data = shell_out("update-alternatives --display #{alternative_name}").stdout
                 else
                   stdin, stdout, stderr, wait_thr = Open3.popen3('update-alternatives', '--display', alternative_name)
                   data = stdout.gets(nil)
@@ -54,7 +54,8 @@ Ohai.plugin(:Alternatives) do
             end 
 
         rescue Exception => e
-          puts e.message
+          puts "alternatives.rb: ERROR: " + e.message
+          puts e.backtrace
         end
 
         ohai_gecos['alternatives'] = alternatives_data
