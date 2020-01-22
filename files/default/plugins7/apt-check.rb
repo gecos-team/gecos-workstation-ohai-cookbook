@@ -8,8 +8,9 @@ Ohai.plugin(:AptCheck) do
           ohai_gecos Mash.new
         end
         
+        aptcheck = Mash.new
         begin
-          alternatives_elems = %x[apt-get check]
+          aptcheck = %x[apt-get check]
         rescue Exception => e
           puts e.message
         end
