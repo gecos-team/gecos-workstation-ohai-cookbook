@@ -11,6 +11,9 @@ Ohai.plugin(:AptCheck) do
         aptcheck = Mash.new
         begin
           aptcheck = %x[apt-get check]
+          if $?.success?
+            aptcheck = "OK"  
+          end
         rescue Exception => e
           puts e.message
         end
